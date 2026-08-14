@@ -1,131 +1,169 @@
 # Finora AI
 
-**Finora AI** is a modern personal finance web application designed to help users manage their income, expenses, budgets, transactions, savings goals, and financial insights through a clean and responsive dashboard.
+**Finora AI** is a modern personal finance management web application built to help users track their income and expenses, monitor financial activity, manage savings goals, and understand their spending through an interactive dashboard.
 
-## Live Demo
+The application provides a clean, responsive interface with secure Firebase authentication, personalized user profiles, transaction management, analytics, notifications, and data export functionality.
 
-**Deployed Application:**  
+## 🚀 Live Demo
+
+**Deployed Application:**
+
 https://finora-ai-sepia.vercel.app/
 
-## Overview
+---
 
-Finora AI provides a centralized platform for personal financial management.
+## 📌 Overview
 
-Users can securely sign in, manage their financial transactions, monitor spending activity, analyze financial data, create savings goals, and manage their personal profile.
+Finora AI is designed as a complete personal finance management solution.
 
-The application combines modern React development, responsive UI design, Firebase authentication, cloud database functionality, and reusable component-based architecture.
+Users can create an account, securely sign in, personalize their username, manage transactions, monitor their financial activity, analyze spending patterns, create savings goals, and export their transaction data.
 
-## Features
+The project demonstrates modern frontend development using React, Vite, Tailwind CSS, Firebase, and component-based architecture.
+
+---
+
+## ✨ Features
 
 ### 🔐 Authentication
 
-- Email and password authentication
-- Google Sign-In
-- Forgot password / password recovery
-- Secure Firebase Authentication
-- User-specific data management
+- User registration with email and password
+- Secure email/password login
+- Google authentication
+- Forgot password functionality
+- Firebase Authentication integration
+- Authentication error handling
+- Protected application experience after login
 
 ### 👤 User Profile
 
 - Personalized username
-- Username editing
-- User avatar
-- Firebase-based user profile storage
+- Username editing option
+- Username stored in Firestore
+- Automatic username fallback using Firebase profile information
+- Personalized avatar based on username
+- Real-time user information display
 
-### 💰 Finance Management
+### 💰 Transaction Management
 
 - Add income transactions
 - Add expense transactions
-- Edit transactions
-- Delete transactions
-- Transaction categorization
-- Income and expense tracking
+- Categorize transactions
+- Track transaction amounts
+- Store transaction details
+- Edit and manage financial records
+- View transaction history
+- Organized transaction interface
 
 ### 📊 Dashboard
 
 - Financial overview
 - Income summary
 - Expense summary
-- Balance tracking
+- Balance information
 - Recent transactions
-- Financial statistics
+- Financial activity overview
+- Responsive dashboard layout
 
 ### 📈 Analytics
 
-- Spending analysis
-- Income and expense visualization
-- Transaction insights
-- Financial activity monitoring
+- Visual financial analytics
+- Income and expense analysis
+- Spending insights
+- Transaction-based financial visualization
+- Easy-to-understand financial information
 
 ### 🎯 Savings Goals
 
 - Create savings goals
-- Track goal progress
+- Track savings progress
 - Monitor financial targets
-- Visual progress indicators
+- Manage personal savings objectives
 
 ### 🔔 Notifications
 
-- Financial notifications
+- Notification system
 - Unread notification counter
-- Mark notifications as read
+- Mark individual notifications as read
+- Mark all notifications as read
 - Clear notifications
+- Success, warning, and information notification types
 
-### 📁 Data Export
-
-- Export transaction data
-- CSV download functionality
-
-### 🎨 User Experience
+### 🌙 User Interface
 
 - Responsive design
 - Dark mode
-- Mobile-friendly interface
-- Modern dashboard UI
-- Reusable React components
-- Smooth interactions and animations
+- Light mode
+- Mobile-friendly sidebar
+- Modern dashboard interface
+- Interactive navigation
+- Clean and accessible components
 
-## Tech Stack
+### 📥 Data Export
+
+- Export transaction data to CSV
+- Download financial records for external use
+- Easy data management
+
+---
+
+## 🛠️ Tech Stack
 
 ### Frontend
 
-- React.js
-- Vite
-- JavaScript (ES6+)
-- Tailwind CSS
-- Lucide React
+- **React.js**
+- **JavaScript (ES6+)**
+- **Vite**
+- **Tailwind CSS**
+- **Lucide React**
 
 ### Backend / Cloud Services
 
-- Firebase Authentication
-- Firebase Firestore
+- **Firebase Authentication**
+- **Firebase Firestore**
 
 ### Development Tools
 
-- Git
-- GitHub
-- Visual Studio Code
+- **Git**
+- **GitHub**
+- **Visual Studio Code**
+- **ESLint**
 
 ### Deployment
 
-- Vercel
+- **Vercel**
 
-## Project Structure
+---
+
+## 🏗️ Application Architecture
+
+Finora AI follows a component-based React architecture.
 
 ```text
 finora-ai/
+│
 ├── public/
+│
 ├── src/
 │   ├── assets/
+│   │
 │   ├── components/
+│   │   ├── auth/
 │   │   ├── layout/
+│   │   ├── dashboard/
 │   │   └── ...
+│   │
 │   ├── pages/
+│   │
 │   ├── context/
+│   │
 │   ├── firebase.js
-│   └── ...
+│   │
+│   ├── App.jsx
+│   └── main.jsx
+│
 ├── package.json
+├── package-lock.json
 ├── vite.config.js
 ├── eslint.config.js
-├── index.html
+├── postcss.config.js
 └── README.md
