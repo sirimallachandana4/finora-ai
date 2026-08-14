@@ -13,6 +13,13 @@ import {
   X,
 } from "lucide-react";
 
+import {
+  doc,
+  onSnapshot,
+} from "firebase/firestore";
+
+import { db } from "../../firebase";
+
 function Header({
   currentUser,
   isDarkMode,
@@ -25,42 +32,128 @@ function Header({
   const [showNotifications, setShowNotifications] =
     useState(false);
 
+  /*
+   * Username state
+   *
+   * Initial value comes directly from Firebase user.
+   * Firestore can update it later.
+   */
+  const [username, setUsername] = useState(
+    currentUser?.username ||
+      currentUser?.displayName ||
+      currentUser?.email?.split("@")[0] ||
+      "User"
+  );
+
   const notificationRef = useRef(null);
+
+  /*
+   * =====================================================
+   * LOAD USERNAME FROM FIRESTORE
+   * =====================================================
+   */
+
+  useEffect(() => {
+    if (!currentUser?.uid) {
+      return undefined;
+    }
+
+    const userRef = doc(
+      db,
+      "users",
+      currentUser.uid
+    );
+
+    const unsubscribe = onSnapshot(
+      userRef,
+      (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+
+          setUsername(
+            data.username ||
+              currentUser.displayName ||
+              currentUser.email?.split("@")[0] ||
+              "User"
+          );
+
+          return;
+        }
+
+        setUsername(
+          currentUser.displayName ||
+            currentUser.email?.split("@")[0] ||
+            "User"
+        );
+      },
+      (error) => {
+        console.error(
+          "Error loading username:",
+          error
+        );
+
+        setUsername(
+          currentUser.displayName ||
+            currentUser.email?.split("@")[0] ||
+            "User"
+        );
+      }
+    );
+
+    return () => {
+      unsubscribe();
+    };
+  }, [currentUser]);
+
+  /*
+   * =====================================================
+   * UPDATE INITIAL USERNAME WHEN USER CHANGES
+   * =====================================================
+   *
+   * This is calculated during render rather than using
+   * another effect.
+   */
+
+  const displayUsername =
+    username ||
+    currentUser?.displayName ||
+    currentUser?.email?.split("@")[0] ||
+    "User";
+
+  /*
+   * =====================================================
+   * AVATAR
+   * =====================================================
+   */
+
+  const avatarLetter =
+    displayUsername
+      .charAt(0)
+      .toUpperCase() || "U";
+
+  /*
+   * =====================================================
+   * NOTIFICATION COUNT
+   * =====================================================
+   */
 
   const unreadCount = notifications.filter(
     (notification) => !notification.read
   ).length;
 
   /*
-   * USERNAME
-   *
-   * Priority:
-   * 1. Firestore username
-   * 2. Firebase displayName
-   * 3. Email before @
-   * 4. User
+   * =====================================================
+   * CLOSE NOTIFICATIONS WHEN CLICKING OUTSIDE
+   * =====================================================
    */
-  const username =
-  currentUser?.username ||
-  currentUser?.displayName ||
-  currentUser?.email?.split("@")[0] ||
-  "User";
 
-  /*
-   * First letter for avatar
-   */
-  const avatarLetter = username
-    .charAt(0)
-    .toUpperCase();
-
-  /*
-   * Close notification popup
-   */
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
         notificationRef.current &&
-        !notificationRef.current.contains(event.target)
+        !notificationRef.current.contains(
+          event.target
+        )
       ) {
         setShowNotifications(false);
       }
@@ -80,54 +173,76 @@ function Header({
   }, []);
 
   /*
-   * Mark all notifications as read
+   * =====================================================
+   * MARK ALL NOTIFICATIONS AS READ
+   * =====================================================
    */
+
   const markAllAsRead = () => {
-    setNotifications((previousNotifications) =>
-      previousNotifications.map(
-        (notification) => ({
-          ...notification,
-          read: true,
-        })
-      )
+    setNotifications(
+      (previousNotifications) =>
+        previousNotifications.map(
+          (notification) => ({
+            ...notification,
+            read: true,
+          })
+        )
     );
   };
 
   /*
-   * Mark one notification as read
+   * =====================================================
+   * MARK ONE NOTIFICATION AS READ
+   * =====================================================
    */
+
   const markNotificationAsRead = (
     notificationId
   ) => {
-    setNotifications((previousNotifications) =>
-      previousNotifications.map(
-        (notification) =>
-          notification.id === notificationId
-            ? {
-                ...notification,
-                read: true,
-              }
-            : notification
-      )
+    setNotifications(
+      (previousNotifications) =>
+        previousNotifications.map(
+          (notification) =>
+            notification.id === notificationId
+              ? {
+                  ...notification,
+                  read: true,
+                }
+              : notification
+        )
     );
   };
 
   /*
-   * Clear notifications
+   * =====================================================
+   * CLEAR NOTIFICATIONS
+   * =====================================================
    */
+
   const clearNotifications = () => {
     setNotifications([]);
     setShowNotifications(false);
   };
 
+  /*
+   * =====================================================
+   * RETURN
+   * =====================================================
+   */
+
   return (
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 px-4 py-4 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95 sm:px-6">
+
       <div className="flex items-center justify-between gap-4">
 
-        {/* LEFT */}
+        {/* =================================================
+            LEFT
+            ================================================= */}
+
         <div className="flex items-center gap-3">
 
           {/* Mobile sidebar */}
+
           <button
             type="button"
             onClick={openSidebar}
@@ -143,16 +258,22 @@ function Header({
             </h2>
 
             <p className="hidden text-sm text-slate-500 dark:text-slate-400 sm:block">
-              Manage your income, expenses, budgets,
-              and financial insights in one place.
+              Manage your income, expenses,
+              budgets, and financial insights
+              in one place.
             </p>
           </div>
+
         </div>
 
-        {/* RIGHT */}
+        {/* =================================================
+            RIGHT
+            ================================================= */}
+
         <div className="flex items-center gap-2 sm:gap-3">
 
           {/* DARK MODE */}
+
           <button
             type="button"
             onClick={toggleTheme}
@@ -166,11 +287,15 @@ function Header({
             )}
           </button>
 
-          {/* NOTIFICATIONS */}
+          {/* =================================================
+              NOTIFICATIONS
+              ================================================= */}
+
           <div
             ref={notificationRef}
             className="relative"
           >
+
             <button
               type="button"
               onClick={() =>
@@ -194,7 +319,9 @@ function Header({
               <div className="absolute right-0 mt-3 w-[350px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900">
 
                 {/* Notification header */}
+
                 <div className="flex items-center justify-between border-b border-slate-200 p-4 dark:border-slate-700">
+
                   <div>
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                       Notifications
@@ -217,13 +344,16 @@ function Header({
                   >
                     <X size={20} />
                   </button>
+
                 </div>
 
                 {/* Notifications */}
+
                 <div className="max-h-80 overflow-y-auto p-3">
 
                   {notifications.length === 0 ? (
                     <div className="py-8 text-center">
+
                       <Bell
                         size={32}
                         className="mx-auto mb-3 text-slate-400"
@@ -236,9 +366,11 @@ function Header({
                       <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                         You're all caught up.
                       </p>
+
                     </div>
                   ) : (
                     <div className="space-y-2">
+
                       {notifications.map(
                         (notification) => (
                           <button
@@ -255,6 +387,7 @@ function Header({
                                 : "bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
                             }`}
                           >
+
                             {notification.type ===
                             "success" ? (
                               <CheckCircle
@@ -277,22 +410,29 @@ function Header({
                             <p className="text-sm text-slate-800 dark:text-slate-200">
                               {notification.message}
                             </p>
+
                           </button>
                         )
                       )}
+
                     </div>
                   )}
+
                 </div>
 
                 {/* Footer */}
+
                 {notifications.length > 0 && (
                   <div className="border-t border-slate-200 p-3 dark:border-slate-700">
+
                     <div className="flex gap-2">
 
                       <button
                         type="button"
                         onClick={markAllAsRead}
-                        disabled={unreadCount === 0}
+                        disabled={
+                          unreadCount === 0
+                        }
                         className="flex-1 rounded-xl bg-violet-600 py-2.5 text-sm font-bold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         Mark all as read
@@ -307,48 +447,66 @@ function Header({
                       </button>
 
                     </div>
+
                   </div>
                 )}
+
               </div>
             )}
+
           </div>
 
-          {/* ADD TRANSACTION */}
+          {/* =================================================
+              ADD TRANSACTION
+              ================================================= */}
+
           <button
             type="button"
             onClick={openForm}
             className="flex items-center gap-2 rounded-xl bg-violet-600 px-3 py-2.5 text-sm font-bold text-white shadow-lg shadow-violet-500/20 transition hover:bg-violet-700 sm:px-4"
           >
             <Plus size={18} />
-            <span>Add Transaction</span>
+
+            <span>
+              Add Transaction
+            </span>
           </button>
 
-          {/* USER */}
-<div className="ml-1 hidden items-center gap-3 border-l border-slate-200 pl-4 dark:border-slate-700 md:flex">
+          {/* =================================================
+              USER
+              ================================================= */}
 
-  {/* Avatar */}
-  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-pink-500 font-bold text-white">
-    {avatarLetter}
-  </div>
+          <div className="ml-1 hidden items-center gap-3 border-l border-slate-200 pl-4 dark:border-slate-700 md:flex">
 
-  {/* Username */}
-  <div>
-    <p className="text-sm font-bold text-slate-900 dark:text-white">
-      {username}
-    </p>
+            {/* Avatar */}
 
-    <p className="text-xs text-slate-500 dark:text-slate-400">
-      Personal account
-    </p>
-  </div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-pink-500 font-bold text-white">
+              {avatarLetter}
+            </div>
 
-  <ChevronDown
-    size={17}
-    className="text-slate-400"
-  />
-</div>
+            {/* Username */}
+
+            <div>
+              <p className="max-w-[180px] truncate text-sm font-bold text-slate-900 dark:text-white">
+                {displayUsername}
+              </p>
+
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Personal account
+              </p>
+            </div>
+
+            <ChevronDown
+              size={17}
+              className="text-slate-400"
+            />
+
+          </div>
+
         </div>
+
       </div>
+
     </header>
   );
 }
